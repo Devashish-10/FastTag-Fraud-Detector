@@ -10,16 +10,16 @@ from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
-# Load the dataset
+# Loading dataset
 dataset=pd.read_csv('FastagFraudDetection.csv')
 dataset['Timestamp'] = pd.to_datetime(dataset['Timestamp'])
-# Extract useful features from timestamp
+# Extracting useful features from timestamp
 dataset['Hour'] = dataset['Timestamp'].dt.hour
 dataset['DayOfWeek'] = dataset['Timestamp'].dt.dayofweek
 dataset['Month'] = dataset['Timestamp'].dt.month
-# One-hot encoding example
+# Applying One-hot encoding 
 dataset = pd.get_dummies(dataset, columns=['Vehicle_Type', 'Lane_Type'])
-# Label encoding example
+# Label encoding
 le = LabelEncoder()
 dataset['Fraud_indicator'] = le.fit_transform(dataset['Fraud_indicator'])
 # Feature Extraction Using Haverin Distance 
@@ -28,22 +28,21 @@ reference_point = (13.059816123454882, 77.77068662374292)
 dataset['distance_from_city_center'] = dataset['Geographical_Location'].apply(
     lambda x: geodesic(reference_point, tuple(map(float, x.split(',')))).kilometers
 )
-# Feature Scaling
 scaler = MinMaxScaler()
 dataset[['Vehicle_Speed', 'Transaction_Amount', 'Amount_paid']] = scaler.fit_transform(
     dataset[['Vehicle_Speed', 'Transaction_Amount', 'Amount_paid']]
 )
-# Compute the correlation matrix (excluding non-numeric columns)
+# Computing the correlation matrix 
 numeric_columns = dataset.select_dtypes(include=np.number).columns
 correlation_matrix = dataset[numeric_columns].corr()
-# Set a correlation threshold for feature selection
+# Setting a correlation threshold of 0.1
 correlation_threshold = 0.1
-# Select features with absolute correlation above the threshold
+# Selecting features with absolute correlation above the threshold
 selected_features = correlation_matrix[abs(correlation_matrix['Fraud_indicator']) > correlation_threshold].index
-# Keep only the selected features in the dataset
+# Keeping only the selected features in the dataset
 print(selected_features)
 dataset = dataset[selected_features]
-# Handling NaN values by filling with mean
+# Handling NaN values by filling with mean value
 dataset.fillna(dataset.mean(), inplace=True)
 """# Plot a heatmap to visualize correlations
 plt.figure(figsize=(12, 10))
@@ -63,20 +62,20 @@ print(y_train.value_counts())
 # Oversampling using RandomOverSampler
 oversampler = RandomOverSampler(random_state=42)
 x_train_resampled, y_train_resampled = oversampler.fit_resample(x_train, y_train)
-# Print class distribution after oversampling
+# Printing class distribution after oversampling
 print("\nClass Distribution after Oversampling:")
 print(y_train_resampled.value_counts())
-# Train a model on the resampled data
+# Training the model on the resampled data
 model = BalancedRandomForestClassifier(random_state=42)
 model.fit(x_train_resampled, y_train_resampled)
-# Make predictions on the test set
+# Making predictions on the test set
 y_pred = model.predict(x_test)
-# Evaluate the model
+# Evaluating the model
 accuracy = accuracy_score(y_test, y_pred)
 print("\nAccuracy:", accuracy)
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
-# Save the model 
+# Saving the model 
 joblib.dump(model, 'model_FasttagFraudDetection.pkl')
