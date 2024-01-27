@@ -1,8 +1,8 @@
 import joblib
 import pandas as pd
-# Load the saved model
+# Loading the saved model
 model = joblib.load('model_FasttagFraudDetection.pkl')
-# Get input from the user for real-time prediction
+# Getting input from the user for real-time prediction
 user_data = {
     'Hour': int(input("Enter Hour:")),
     'DayOfWeek': int(input("Enter Day of Week (0-6, where 0 is Monday and 6 is Sunday):")),
@@ -16,9 +16,9 @@ user_data = {
     'Lane_Type_Express': int(input("Is the Lane Type Express? (1 for Yes, 0 for No):")),
     'Lane_Type_Local': int(input("Is the Lane Type Local? (1 for Yes, 0 for No):"))
 }
-# Convert the user input into a DataFrame
+# Converting the user input into a DataFrame
 user_data_df = pd.DataFrame([user_data])
-# Make predictions using the loaded model
+# Making predictions using the loaded model
 prediction = model.predict(user_data_df)
-# Print the prediction
+# Printing the prediction made by our model
 print("Predicted Fraud Indicator:", prediction[0])
